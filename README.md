@@ -1,184 +1,169 @@
 # pen2pdf
 
-CLI tool to generate PDF documents from `.pen` files (Pencil design format).
+CLI tool to generate PDF documents from `.pen` files — a JSON-based design format.
 
-## Overview
+## Features
 
-`pen2pdf` parses `.pen` files — a JSON-based design document format — and renders them into high-fidelity PDF output. Each top-level frame in the `.pen` file becomes a separate page in the resulting PDF.
+- **Full layout engine** — Flexbox-like layout with `vertical`/`horizontal` stacking, `gap`, `padding`, `justifyContent`, `alignItems`, and `fill_container` responsive sizing
+- **Typography** — Font embedding with `fontFamily`, `fontSize`, `fontWeight`, `fontStyle`, `letterSpacing`, `lineHeight`, and `textAlign`
+- **Auto-sizing** — Frames without explicit dimensions automatically size to fit their content
+- **Design variables** — Reusable `$variable` tokens for colors, fonts, spacing, and sizes
+- **Image fills** — Background images with cover mode, clipping, and configurable opacity
+- **Rounded corners** — Frames with `cornerRadius` and solid or image backgrounds
+- **Multi-page** — Each top-level frame becomes a separate PDF page
+- **Auto font download** — Missing fonts are detected and downloaded from Google Fonts with a single prompt
+- **Fallback fonts** — Embedded Go fonts as fallback when fonts are unavailable
 
-### The `.pen` Format
+## Installation
 
-A `.pen` file describes a tree of visual nodes with two primitive types:
+### From GitHub Releases (recommended)
 
-- **`frame`** — Container with optional background (solid color or image), border radius, clipping, and Flexbox-like layout (`vertical`/`horizontal`, `gap`, `padding`, `justifyContent`, `alignItems`).
-- **`text`** — Text node with full typography control (`fontFamily`, `fontSize`, `fontWeight`, `fontStyle`, `letterSpacing`, `lineHeight`, `textAlign`).
+Download the latest pre-compiled binary for your platform from the [Releases](https://github.com/vpedrosa/pen2pdf/releases) page.
 
-It also supports:
+```bash
+# Linux (amd64)
+curl -Lo pen2pdf https://github.com/vpedrosa/pen2pdf/releases/latest/download/pen2pdf-linux-amd64
+chmod +x pen2pdf
+sudo mv pen2pdf /usr/local/bin/
 
-- **Design variables** — Reusable tokens (`$variable-name`) for colors, fonts, spacing, and sizes.
-- **Responsive sizing** — Fixed pixel dimensions or `fill_container` to expand to the parent's available space.
-- **Image fills** — Background images with `fill` mode and configurable opacity.
+# macOS (Apple Silicon)
+curl -Lo pen2pdf https://github.com/vpedrosa/pen2pdf/releases/latest/download/pen2pdf-darwin-arm64
+chmod +x pen2pdf
+sudo mv pen2pdf /usr/local/bin/
 
-## Architecture
-
-The project follows **hexagonal architecture** (ports & adapters) with **vertical slicing**. Each functional group is a self-contained slice with its own domain, application, and infrastructure layers.
-
-### Pipeline
-
-```
-.pen file
-   │
-   ▼
-┌──────────────────┐
-│   1. Parser      │  JSON → typed Go AST (Node tree)
-└────────┬─────────┘
-         ▼
-┌──────────────────┐
-│   2. Resolver    │  Replace $variable references with concrete values
-└────────┬─────────┘
-         ▼
-┌──────────────────┐
-│   3. Assets      │  Load images, resolve relative paths, register fonts
-└────────┬─────────┘
-         ▼
-┌──────────────────┐
-│   4. Layout      │  Calculate absolute (x, y, w, h) for every node
-│                  │  Implements a Flexbox subset:
-│                  │    - fill_container resolution
-│                  │    - padding, gap distribution
-│                  │    - justifyContent / alignItems
-│                  │    - intrinsic text measurement
-└────────┬─────────┘
-         ▼
-┌──────────────────┐
-│   5. Renderer    │  Walk the positioned tree and draw to PDF:
-│                  │    - Filled rectangles with corner radius
-│                  │    - Images (clipped, scaled to fill)
-│                  │    - Text with font embedding
-│                  │  Each root-level frame → 1 PDF page
-└──────────────────┘
+# macOS (Intel)
+curl -Lo pen2pdf https://github.com/vpedrosa/pen2pdf/releases/latest/download/pen2pdf-darwin-amd64
+chmod +x pen2pdf
+sudo mv pen2pdf /usr/local/bin/
 ```
 
-### Hexagonal Layers
+### From source
 
-Each vertical slice contains three layers:
+Requires Go 1.21+.
 
-- **`domain/`** — Entities, value objects, and port interfaces. Zero external dependencies.
-- **`application/`** — Use cases and services that orchestrate domain logic.
-- **`infrastructure/`** — Adapters: concrete implementations of domain ports (JSON parser, filesystem loader, gopdf renderer).
-
-### Project Structure
-
+```bash
+go install github.com/vpedrosa/pen2pdf@latest
 ```
-pen2pdf/
-├── cmd/                                        # Cobra CLI commands (driving adapters)
-│   ├── root.go                                 # Root command, version flag
-│   ├── render.go                               # pen2pdf render
-│   ├── validate.go                             # pen2pdf validate
-│   └── info.go                                 # pen2pdf info
-├── internal/
-│   ├── shared/                                 # Cross-cutting shared types
-│   │   ├── domain/
-│   │   │   ├── node.go                         # Node interface, Frame, Text structs
-│   │   │   ├── document.go                     # Document top-level container
-│   │   │   ├── fill.go                         # Fill types (solid color, image)
-│   │   │   └── variable.go                     # Variable type system
-│   │   ├── application/
-│   │   └── infrastructure/
-│   ├── parser/                                 # Parse vertical slice
-│   │   ├── domain/
-│   │   │   └── port.go                         # Parser port interface
-│   │   ├── application/
-│   │   │   └── service.go                      # Parse orchestration
-│   │   └── infrastructure/
-│   │       └── json/
-│   │           └── parser.go                   # JSON .pen file adapter
-│   ├── resolver/                               # Resolve vertical slice
-│   │   ├── domain/
-│   │   │   └── port.go                         # Resolver port interface
-│   │   ├── application/
-│   │   │   └── service.go                      # Resolution orchestration
-│   │   └── infrastructure/
-│   │       └── engine/
-│   │           └── resolver.go                 # $variable substitution engine
-│   ├── asset/                                  # Asset loading vertical slice
-│   │   ├── domain/
-│   │   │   └── port.go                         # AssetLoader port, ImageData, FontData
-│   │   ├── application/
-│   │   │   └── service.go                      # Asset orchestration
-│   │   └── infrastructure/
-│   │       └── fs/
-│   │           └── loader.go                   # Filesystem image/font loader
-│   ├── layout/                                 # Layout vertical slice
-│   │   ├── domain/
-│   │   │   ├── port.go                         # LayoutEngine port, TextMeasurer
-│   │   │   └── types.go                        # LayoutBox, Page
-│   │   ├── application/
-│   │   │   └── service.go                      # Layout orchestration
-│   │   └── infrastructure/
-│   │       └── flexbox/
-│   │           ├── engine.go                   # Flexbox layout algorithm
-│   │           └── measure.go                  # Text intrinsic measurement
-│   └── renderer/                               # Render vertical slice
-│       ├── domain/
-│       │   └── port.go                         # Renderer port interface
-│       ├── application/
-│       │   └── service.go                      # Render orchestration
-│       └── infrastructure/
-│           └── pdf/
-│               ├── renderer.go                 # gopdf document/page setup
-│               └── draw.go                     # Drawing primitives
-├── main.go
-├── .air.toml
-├── Taskfile.yml
-├── go.mod
-└── go.sum
+
+### Build from source
+
+```bash
+git clone https://github.com/vpedrosa/pen2pdf.git
+cd pen2pdf
+go build -o pen2pdf .
 ```
 
 ## Usage
 
+### Render a `.pen` file to PDF
+
 ```bash
-# Render a .pen file to PDF
 pen2pdf render input.pen -o output.pdf
+```
 
-# Render specific pages only
-pen2pdf render input.pen -o output.pdf --pages "Travel Flyer"
+On first run, `pen2pdf` detects missing fonts and offers to download them from Google Fonts:
 
-# Show document info (pages, variables, fonts used)
-pen2pdf info input.pen
+```
+Missing 15 font(s):
+  - Inter 700
+  - Montserrat 300
+  ...
 
-# Validate a .pen file without rendering
+Download from Google Fonts to ./fonts? [Y/n] y
+  downloaded: Inter-Bold.ttf
+  downloaded: Montserrat-Light.ttf
+  ...
+15 font(s) downloaded to ./fonts
+
+PDF written to output.pdf (2 pages)
+```
+
+Downloaded fonts are saved next to the `.pen` file in a `fonts/` directory and reused on subsequent runs.
+
+### Render specific pages
+
+```bash
+pen2pdf render input.pen --pages "Travel Flyer"
+```
+
+### Non-interactive mode
+
+```bash
+pen2pdf render input.pen --no-prompt
+```
+
+Skips the font download prompt and uses fallback fonts. Useful for CI/CD pipelines.
+
+### Validate a `.pen` file
+
+```bash
 pen2pdf validate input.pen
+```
+
+Checks that the file parses and variables resolve correctly, without rendering.
+
+### Show document info
+
+```bash
+pen2pdf info input.pen
+```
+
+Displays pages, variables, and fonts used in the document.
+
+## The `.pen` Format
+
+A `.pen` file is a JSON document describing a tree of visual nodes:
+
+- **`frame`** — Container with optional fill (solid color or image), corner radius, clipping, and layout properties
+- **`text`** — Text node with full typography control
+
+```json
+{
+  "version": "2.7",
+  "children": [
+    {
+      "type": "frame",
+      "id": "page1",
+      "name": "My Page",
+      "width": 800,
+      "height": 1000,
+      "fill": "#FFFFFF",
+      "layout": "vertical",
+      "gap": 20,
+      "padding": 40,
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "text",
+          "id": "title",
+          "name": "title",
+          "content": "Hello World",
+          "fill": "$primary-color",
+          "fontFamily": "Inter",
+          "fontSize": 48,
+          "fontWeight": "700"
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "primary-color": { "type": "color", "value": "#FF6B35" }
+  }
+}
 ```
 
 ## Development
 
 ```bash
 task          # lint + test + build
-task lint     # golangci-lint
 task test     # go test with race detector and coverage
 task build    # build to ./bin/pen2pdf
+task lint     # golangci-lint
+task fmt      # format code
 task dev      # start Air hot-reload
 task clean    # remove build artifacts
-task fmt      # format code
 ```
-
-## Dependencies
-
-Key Go libraries:
-
-| Library | Purpose |
-|---------|---------|
-| [cobra](https://github.com/spf13/cobra) | CLI framework |
-| [gopdf](https://github.com/signintech/gopdf) | PDF generation with TTF/OTF support |
-
-Dev tools (installed globally):
-
-| Tool | Purpose |
-|------|---------|
-| [task](https://taskfile.dev) | Task runner |
-| [air](https://github.com/air-verse/air) | Hot-reload for development |
-| [golangci-lint](https://golangci-lint.run) | Linter aggregator |
 
 ## License
 
