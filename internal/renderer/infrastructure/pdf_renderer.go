@@ -5,26 +5,46 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"os"
 	"strings"
 
 	"github.com/signintech/gopdf"
+	"golang.org/x/image/font/gofont/gobold"
+	"golang.org/x/image/font/gofont/gobolditalic"
+	"golang.org/x/image/font/gofont/goitalic"
+	"golang.org/x/image/font/gofont/goregular"
+
 	asset "github.com/vpedrosa/pen2pdf/internal/asset/domain"
 	layout "github.com/vpedrosa/pen2pdf/internal/layout/domain"
 	shared "github.com/vpedrosa/pen2pdf/internal/shared/domain"
 )
 
+const fallbackFontFamily = "GoFont"
+
+// fallbackFonts maps style keys to embedded Go font TTF data.
+var fallbackFonts = map[string][]byte{
+	"regular":    goregular.TTF,
+	"bold":       gobold.TTF,
+	"italic":     goitalic.TTF,
+	"bolditalic": gobolditalic.TTF,
+}
+
 // PDFRenderer renders layout pages to PDF using gopdf.
 type PDFRenderer struct {
-	imageLoader asset.ImageLoader
-	fontLoader  asset.FontLoader
-	loadedFonts map[string]bool
+	imageLoader   asset.ImageLoader
+	fontLoader    asset.FontLoader
+	loadedFonts   map[string]bool
+	fallbackReady map[string]bool
+	warned        map[string]bool
 }
 
 func NewPDFRenderer(imageLoader asset.ImageLoader, fontLoader asset.FontLoader) *PDFRenderer {
 	return &PDFRenderer{
-		imageLoader: imageLoader,
-		fontLoader:  fontLoader,
-		loadedFonts: make(map[string]bool),
+		imageLoader:   imageLoader,
+		fontLoader:    fontLoader,
+		loadedFonts:   make(map[string]bool),
+		fallbackReady: make(map[string]bool),
+		warned:        make(map[string]bool),
 	}
 }
 
@@ -107,7 +127,6 @@ func (r *PDFRenderer) drawSolidRect(pdf *gopdf.GoPdf, x, y, w, h float64, color 
 	return nil
 }
 
-
 func (r *PDFRenderer) drawImage(pdf *gopdf.GoPdf, x, y, w, h float64, fill *shared.Fill, clip bool) error {
 	if r.imageLoader == nil {
 		return nil
@@ -115,7 +134,8 @@ func (r *PDFRenderer) drawImage(pdf *gopdf.GoPdf, x, y, w, h float64, fill *shar
 
 	imgData, err := r.imageLoader.LoadImage(fill.URL)
 	if err != nil {
-		return fmt.Errorf("load image %q: %w", fill.URL, err)
+		fmt.Fprintf(os.Stderr, "warning: image %q not found, skipping\n", fill.URL)
+		return nil
 	}
 
 	if fill.Opacity > 0 && fill.Opacity < 1.0 {
@@ -169,25 +189,15 @@ func (r *PDFRenderer) drawImage(pdf *gopdf.GoPdf, x, y, w, h float64, fill *shar
 }
 
 func (r *PDFRenderer) renderText(pdf *gopdf.GoPdf, box *layout.LayoutBox, text *shared.Text) error {
-	if text.Content == "" || r.fontLoader == nil {
+	if text.Content == "" {
 		return nil
 	}
 
-	// Load and set font
 	fontKey := text.FontFamily + "-" + text.FontWeight
-	if !r.loadedFonts[fontKey] && r.fontLoader != nil {
-		style := text.FontStyle
-		if style == "" {
-			style = "normal"
+	if !r.loadedFonts[fontKey] {
+		if err := r.loadFont(pdf, fontKey, text.FontFamily, text.FontWeight, text.FontStyle); err != nil {
+			return err
 		}
-		fontData, err := r.fontLoader.LoadFont(text.FontFamily, text.FontWeight, style)
-		if err != nil {
-			return fmt.Errorf("load font %q: %w", fontKey, err)
-		}
-		if err := pdf.AddTTFFontByReader(fontKey, bytes.NewReader(fontData.Data)); err != nil {
-			return fmt.Errorf("add font %q: %w", fontKey, err)
-		}
-		r.loadedFonts[fontKey] = true
 	}
 
 	if err := pdf.SetFont(fontKey, "", text.FontSize); err != nil {
@@ -247,4 +257,73 @@ func (r *PDFRenderer) renderText(pdf *gopdf.GoPdf, box *layout.LayoutBox, text *
 	pdf.SetTransparency(gopdf.Transparency{Alpha: 1.0, BlendModeType: gopdf.NormalBlendMode})
 
 	return nil
+}
+
+// loadFont tries the font loader first, then falls back to embedded Go fonts.
+func (r *PDFRenderer) loadFont(pdf *gopdf.GoPdf, fontKey, family, weight, style string) error {
+	if style == "" {
+		style = "normal"
+	}
+
+	// Try the real font loader first
+	if r.fontLoader != nil {
+		fontData, err := r.fontLoader.LoadFont(family, weight, style)
+		if err == nil {
+			if err := pdf.AddTTFFontByReader(fontKey, bytes.NewReader(fontData.Data)); err != nil {
+				return fmt.Errorf("add font %q: %w", fontKey, err)
+			}
+			r.loadedFonts[fontKey] = true
+			return nil
+		}
+		// Font not found — warn and fall back
+		if !r.warned[fontKey] {
+			fmt.Fprintf(os.Stderr, "warning: font %q not found, using fallback (Go font)\n", fontKey)
+			r.warned[fontKey] = true
+		}
+	}
+
+	// Fallback to embedded Go fonts
+	fbKey := fallbackStyleKey(weight, style)
+	fbFontKey := fallbackFontFamily + "-" + fbKey
+
+	if !r.fallbackReady[fbFontKey] {
+		data, ok := fallbackFonts[fbKey]
+		if !ok {
+			data = fallbackFonts["regular"]
+			fbFontKey = fallbackFontFamily + "-regular"
+		}
+		if !r.fallbackReady[fbFontKey] {
+			if err := pdf.AddTTFFontData(fbFontKey, data); err != nil {
+				return fmt.Errorf("add fallback font: %w", err)
+			}
+			r.fallbackReady[fbFontKey] = true
+		}
+	}
+
+	// Map the requested fontKey to the fallback so SetFont works
+	if err := pdf.AddTTFFontData(fontKey, fallbackFonts[fbKey]); err != nil {
+		// Already loaded under another key, try regular
+		if err2 := pdf.AddTTFFontData(fontKey, fallbackFonts["regular"]); err2 != nil {
+			return fmt.Errorf("add fallback font for %q: %w", fontKey, err)
+		}
+	}
+	r.loadedFonts[fontKey] = true
+	return nil
+}
+
+// fallbackStyleKey maps weight/style to a Go font variant key.
+func fallbackStyleKey(weight, style string) string {
+	isBold := weight == "700" || weight == "800" || weight == "900"
+	isItalic := style == "italic"
+
+	switch {
+	case isBold && isItalic:
+		return "bolditalic"
+	case isBold:
+		return "bold"
+	case isItalic:
+		return "italic"
+	default:
+		return "regular"
+	}
 }
