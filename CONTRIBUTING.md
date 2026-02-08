@@ -214,14 +214,14 @@ The project uses GitHub Actions for continuous integration. All workflows trigge
 
 ### Local Development
 
-Use the Makefile to run the same checks locally before pushing:
+Use the Taskfile to run the same checks locally before pushing:
 
 ```bash
-make lint      # Run golangci-lint
-make test      # Run tests with coverage
-make build     # Build the binary
-make dev       # Start Air for hot-reload
-make all       # lint + test + build
+task lint      # Run golangci-lint
+task test      # Run tests with coverage
+task build     # Build the binary
+task dev       # Start Air for hot-reload
+task           # lint + test + build (default)
 ```
 
 ---

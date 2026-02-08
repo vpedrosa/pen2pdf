@@ -130,7 +130,7 @@ pen2pdf/
 │               └── draw.go                     # Drawing primitives
 ├── main.go
 ├── .air.toml
-├── Makefile
+├── Taskfile.yml
 ├── go.mod
 └── go.sum
 ```
@@ -151,10 +151,16 @@ pen2pdf info input.pen
 pen2pdf validate input.pen
 ```
 
-## Building
+## Development
 
 ```bash
-go build -o pen2pdf .
+task          # lint + test + build
+task lint     # golangci-lint
+task test     # go test with race detector and coverage
+task build    # build to ./bin/pen2pdf
+task dev      # start Air hot-reload
+task clean    # remove build artifacts
+task fmt      # format code
 ```
 
 ## Dependencies
@@ -165,6 +171,14 @@ Key Go libraries:
 |---------|---------|
 | [cobra](https://github.com/spf13/cobra) | CLI framework |
 | [gopdf](https://github.com/signintech/gopdf) | PDF generation with TTF/OTF support |
+
+Dev tools (installed globally):
+
+| Tool | Purpose |
+|------|---------|
+| [task](https://taskfile.dev) | Task runner |
+| [air](https://github.com/air-verse/air) | Hot-reload for development |
+| [golangci-lint](https://golangci-lint.run) | Linter aggregator |
 
 ## License
 
