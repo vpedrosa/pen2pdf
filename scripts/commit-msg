@@ -1,0 +1,19 @@
+#!/bin/sh
+
+commit_msg=$(head -1 "$1")
+
+pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert) #[0-9]+!?: .{1,100}$'
+
+if ! echo "$commit_msg" | grep -Eq "$pattern"; then
+    echo ""
+    echo "ERROR: Invalid commit message format."
+    echo ""
+    echo "Expected: <type> #<issue>: <description>"
+    echo "Example:  feat #45: add email monitoring capability"
+    echo ""
+    echo "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+    echo ""
+    echo "Your message: $commit_msg"
+    echo ""
+    exit 1
+fi
