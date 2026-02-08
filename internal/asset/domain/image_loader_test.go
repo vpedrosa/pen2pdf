@@ -16,21 +16,8 @@ func (s *stubImageLoader) LoadImage(_ string) (*asset.ImageData, error) {
 	return s.img, s.err
 }
 
-type stubFontLoader struct {
-	font *asset.FontData
-	err  error
-}
-
-func (s *stubFontLoader) LoadFont(_, _, _ string) (*asset.FontData, error) {
-	return s.font, s.err
-}
-
 func TestImageLoaderInterfaceCompliance(t *testing.T) {
 	var _ asset.ImageLoader = &stubImageLoader{}
-}
-
-func TestFontLoaderInterfaceCompliance(t *testing.T) {
-	var _ asset.FontLoader = &stubFontLoader{}
 }
 
 func TestStubImageLoaderReturnsData(t *testing.T) {
@@ -55,21 +42,5 @@ func TestStubImageLoaderReturnsError(t *testing.T) {
 	_, err := loader.LoadImage("missing.jpg")
 	if err != io.ErrUnexpectedEOF {
 		t.Errorf("expected ErrUnexpectedEOF, got %v", err)
-	}
-}
-
-func TestStubFontLoaderReturnsData(t *testing.T) {
-	expected := &asset.FontData{Family: "Inter", Weight: "700", Style: "normal", Path: "Inter-Bold.ttf"}
-	loader := &stubFontLoader{font: expected}
-
-	got, err := loader.LoadFont("Inter", "700", "normal")
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if got.Family != "Inter" {
-		t.Errorf("expected family 'Inter', got '%s'", got.Family)
-	}
-	if got.Weight != "700" {
-		t.Errorf("expected weight '700', got '%s'", got.Weight)
 	}
 }

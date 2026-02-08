@@ -11,13 +11,14 @@ import (
 	assetApp "github.com/vpedrosa/pen2pdf/internal/asset/application"
 	assetInfra "github.com/vpedrosa/pen2pdf/internal/asset/infrastructure"
 	layoutApp "github.com/vpedrosa/pen2pdf/internal/layout/application"
+	layoutDomain "github.com/vpedrosa/pen2pdf/internal/layout/domain"
 	layoutInfra "github.com/vpedrosa/pen2pdf/internal/layout/infrastructure"
 	parserApp "github.com/vpedrosa/pen2pdf/internal/parser/application"
 	parserInfra "github.com/vpedrosa/pen2pdf/internal/parser/infrastructure"
 	rendererApp "github.com/vpedrosa/pen2pdf/internal/renderer/application"
 	rendererInfra "github.com/vpedrosa/pen2pdf/internal/renderer/infrastructure"
 	resolverApp "github.com/vpedrosa/pen2pdf/internal/resolver/application"
-	resolverInfra "github.com/vpedrosa/pen2pdf/internal/resolver/infrastructure"
+	resolverDomain "github.com/vpedrosa/pen2pdf/internal/resolver/domain"
 	shared "github.com/vpedrosa/pen2pdf/internal/shared/domain"
 )
 
@@ -68,9 +69,9 @@ func runRender(cmd *cobra.Command, args []string) error {
 
 	// Build application services (inject ports via DI)
 	parseSvc := parserApp.NewParseService(parserInfra.NewJSONParser())
-	resolveSvc := resolverApp.NewResolveService(resolverInfra.NewVariableResolver())
+	resolveSvc := resolverApp.NewResolveService(resolverDomain.NewVariableResolver())
 	fontSvc := assetApp.NewFontService(fontLoader)
-	layoutSvc := layoutApp.NewLayoutService(layoutInfra.NewFlexboxEngine(), measurer)
+	layoutSvc := layoutApp.NewLayoutService(layoutDomain.NewFlexboxEngine(), measurer)
 	renderSvc := rendererApp.NewRenderService(pdfRenderer)
 
 	// 1. Parse

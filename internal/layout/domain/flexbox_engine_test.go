@@ -1,10 +1,9 @@
-package infrastructure_test
+package domain_test
 
 import (
 	"testing"
 
 	layout "github.com/vpedrosa/pen2pdf/internal/layout/domain"
-	"github.com/vpedrosa/pen2pdf/internal/layout/infrastructure"
 	shared "github.com/vpedrosa/pen2pdf/internal/shared/domain"
 )
 
@@ -18,7 +17,7 @@ func (m *fixedMeasurer) MeasureText(_, _ string, _ float64, _ string, _ float64)
 }
 
 func TestFlexboxEngineImplementsPort(t *testing.T) {
-	var _ layout.LayoutEngine = infrastructure.NewFlexboxEngine()
+	var _ layout.LayoutEngine = layout.NewFlexboxEngine()
 }
 
 // --- Issue #19: Fixed dimensions and padding ---
@@ -522,7 +521,7 @@ func TestLayoutTextNodeWithMeasurer(t *testing.T) {
 	}
 
 	measurer := &fixedMeasurer{width: 200, height: 60}
-	engine := infrastructure.NewFlexboxEngine()
+	engine := layout.NewFlexboxEngine()
 	pages, err := engine.Layout(doc, measurer)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -563,7 +562,7 @@ func TestLayoutFillContainerWithGap(t *testing.T) {
 
 func mustLayout(t *testing.T, doc *shared.Document) []layout.Page {
 	t.Helper()
-	engine := infrastructure.NewFlexboxEngine()
+	engine := layout.NewFlexboxEngine()
 	pages, err := engine.Layout(doc, nil)
 	if err != nil {
 		t.Fatalf("unexpected layout error: %v", err)

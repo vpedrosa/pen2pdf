@@ -8,7 +8,7 @@ import (
 	parserApp "github.com/vpedrosa/pen2pdf/internal/parser/application"
 	parserInfra "github.com/vpedrosa/pen2pdf/internal/parser/infrastructure"
 	resolverApp "github.com/vpedrosa/pen2pdf/internal/resolver/application"
-	resolverInfra "github.com/vpedrosa/pen2pdf/internal/resolver/infrastructure"
+	resolverDomain "github.com/vpedrosa/pen2pdf/internal/resolver/domain"
 )
 
 var validateCmd = &cobra.Command{
@@ -33,7 +33,7 @@ func runValidate(cmd *cobra.Command, args []string) error {
 	defer inputFile.Close() //nolint:errcheck
 
 	parseSvc := parserApp.NewParseService(parserInfra.NewJSONParser())
-	resolveSvc := resolverApp.NewResolveService(resolverInfra.NewVariableResolver())
+	resolveSvc := resolverApp.NewResolveService(resolverDomain.NewVariableResolver())
 
 	doc, err := parseSvc.Parse(inputFile)
 	if err != nil {

@@ -1,9 +1,8 @@
-package infrastructure
+package domain
 
 import (
 	"fmt"
 
-	layout "github.com/vpedrosa/pen2pdf/internal/layout/domain"
 	shared "github.com/vpedrosa/pen2pdf/internal/shared/domain"
 )
 
@@ -14,8 +13,8 @@ func NewFlexboxEngine() *FlexboxEngine {
 	return &FlexboxEngine{}
 }
 
-func (e *FlexboxEngine) Layout(doc *shared.Document, measurer layout.TextMeasurer) ([]layout.Page, error) {
-	pages := make([]layout.Page, 0, len(doc.Children))
+func (e *FlexboxEngine) Layout(doc *shared.Document, measurer TextMeasurer) ([]Page, error) {
+	pages := make([]Page, 0, len(doc.Children))
 	for _, child := range doc.Children {
 		frame, ok := child.(*shared.Frame)
 		if !ok {
@@ -23,7 +22,7 @@ func (e *FlexboxEngine) Layout(doc *shared.Document, measurer layout.TextMeasure
 		}
 
 		root := layoutFrame(frame, 0, 0, frame.Width.Value, frame.Height.Value, measurer)
-		pages = append(pages, layout.Page{
+		pages = append(pages, Page{
 			Width:  frame.Width.Value,
 			Height: frame.Height.Value,
 			Root:   root,
@@ -32,8 +31,8 @@ func (e *FlexboxEngine) Layout(doc *shared.Document, measurer layout.TextMeasure
 	return pages, nil
 }
 
-func layoutFrame(frame *shared.Frame, x, y, w, h float64, measurer layout.TextMeasurer) *layout.LayoutBox {
-	box := &layout.LayoutBox{
+func layoutFrame(frame *shared.Frame, x, y, w, h float64, measurer TextMeasurer) *LayoutBox {
+	box := &LayoutBox{
 		X:      x,
 		Y:      y,
 		Width:  w,
@@ -224,12 +223,12 @@ func layoutFrame(frame *shared.Frame, x, y, w, h float64, measurer layout.TextMe
 			}
 		}
 
-		var childBox *layout.LayoutBox
+		var childBox *LayoutBox
 		switch n := info.node.(type) {
 		case *shared.Frame:
 			childBox = layoutFrame(n, childX, childY, childW, childH, measurer)
 		case *shared.Text:
-			childBox = &layout.LayoutBox{
+			childBox = &LayoutBox{
 				X:      childX,
 				Y:      childY,
 				Width:  childW,
@@ -246,7 +245,7 @@ func layoutFrame(frame *shared.Frame, x, y, w, h float64, measurer layout.TextMe
 
 // intrinsicSize computes the natural size of a frame based on its children.
 // Used when a frame has no explicit width/height and is not fill_container.
-func intrinsicSize(frame *shared.Frame, measurer layout.TextMeasurer, availableW float64) (float64, float64) {
+func intrinsicSize(frame *shared.Frame, measurer TextMeasurer, availableW float64) (float64, float64) {
 	padH := frame.Padding.Left + frame.Padding.Right
 	padV := frame.Padding.Top + frame.Padding.Bottom
 

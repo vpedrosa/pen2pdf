@@ -104,7 +104,7 @@ func (r *PDFRenderer) drawSolidRect(pdf *gopdf.GoPdf, x, y, w, h float64, color 
 		return nil
 	}
 
-	rgba, err := ParseHexColor(color)
+	rgba, err := shared.ParseHexColor(color)
 	if err != nil {
 		return err
 	}
@@ -220,7 +220,7 @@ func (r *PDFRenderer) renderText(pdf *gopdf.GoPdf, box *layout.LayoutBox, text *
 
 	// Set text color
 	if text.Fill != "" {
-		rgba, err := ParseHexColor(text.Fill)
+		rgba, err := shared.ParseHexColor(text.Fill)
 		if err != nil {
 			return err
 		}

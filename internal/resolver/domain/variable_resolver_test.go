@@ -1,16 +1,15 @@
-package infrastructure_test
+package domain_test
 
 import (
 	"strings"
 	"testing"
 
 	resolver "github.com/vpedrosa/pen2pdf/internal/resolver/domain"
-	"github.com/vpedrosa/pen2pdf/internal/resolver/infrastructure"
 	shared "github.com/vpedrosa/pen2pdf/internal/shared/domain"
 )
 
 func TestVariableResolverImplementsPort(t *testing.T) {
-	var _ resolver.Resolver = infrastructure.NewVariableResolver()
+	var _ resolver.Resolver = resolver.NewVariableResolver()
 }
 
 func TestResolveFrameFillVariable(t *testing.T) {
@@ -27,7 +26,7 @@ func TestResolveFrameFillVariable(t *testing.T) {
 		},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -52,7 +51,7 @@ func TestResolveTextFillVariable(t *testing.T) {
 		},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -89,7 +88,7 @@ func TestResolveNestedNodes(t *testing.T) {
 		},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -123,7 +122,7 @@ func TestResolveNonVariableUnchanged(t *testing.T) {
 		Variables: map[string]shared.Variable{},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -146,7 +145,7 @@ func TestResolveNoVariablesMap(t *testing.T) {
 		},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -160,7 +159,7 @@ func TestResolveUndefinedVariable(t *testing.T) {
 		Variables: map[string]shared.Variable{},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	err := r.Resolve(doc)
 	if err == nil {
 		t.Fatal("expected error for undefined variable")
@@ -178,7 +177,7 @@ func TestResolveNilFillSkipped(t *testing.T) {
 		Variables: map[string]shared.Variable{},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -196,7 +195,7 @@ func TestResolveImageFillUnchanged(t *testing.T) {
 		Variables: map[string]shared.Variable{},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -218,7 +217,7 @@ func TestResolveEmptyFillStringSkipped(t *testing.T) {
 		Variables: map[string]shared.Variable{},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -251,7 +250,7 @@ func TestResolveMultipleVariablesSameDocument(t *testing.T) {
 		},
 	}
 
-	r := infrastructure.NewVariableResolver()
+	r := resolver.NewVariableResolver()
 	if err := r.Resolve(doc); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -1,14 +1,14 @@
-package infrastructure_test
+package domain_test
 
 import (
 	"math"
 	"testing"
 
-	"github.com/vpedrosa/pen2pdf/internal/renderer/infrastructure"
+	shared "github.com/vpedrosa/pen2pdf/internal/shared/domain"
 )
 
 func TestParseHexColorRGB(t *testing.T) {
-	c, err := infrastructure.ParseHexColor("#FF6B35")
+	c, err := shared.ParseHexColor("#FF6B35")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -21,7 +21,7 @@ func TestParseHexColorRGB(t *testing.T) {
 }
 
 func TestParseHexColorRGBA(t *testing.T) {
-	c, err := infrastructure.ParseHexColor("#000000BB")
+	c, err := shared.ParseHexColor("#000000BB")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -35,7 +35,7 @@ func TestParseHexColorRGBA(t *testing.T) {
 }
 
 func TestParseHexColorWhite(t *testing.T) {
-	c, err := infrastructure.ParseHexColor("#FFFFFF")
+	c, err := shared.ParseHexColor("#FFFFFF")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -45,7 +45,7 @@ func TestParseHexColorWhite(t *testing.T) {
 }
 
 func TestParseHexColorBlack(t *testing.T) {
-	c, err := infrastructure.ParseHexColor("#000000")
+	c, err := shared.ParseHexColor("#000000")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -55,7 +55,7 @@ func TestParseHexColorBlack(t *testing.T) {
 }
 
 func TestParseHexColorFullyTransparent(t *testing.T) {
-	c, err := infrastructure.ParseHexColor("#FF000000")
+	c, err := shared.ParseHexColor("#FF000000")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -65,7 +65,7 @@ func TestParseHexColorFullyTransparent(t *testing.T) {
 }
 
 func TestParseHexColorFullyOpaque(t *testing.T) {
-	c, err := infrastructure.ParseHexColor("#FF0000FF")
+	c, err := shared.ParseHexColor("#FF0000FF")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -75,28 +75,28 @@ func TestParseHexColorFullyOpaque(t *testing.T) {
 }
 
 func TestParseHexColorInvalidNoHash(t *testing.T) {
-	_, err := infrastructure.ParseHexColor("FF6B35")
+	_, err := shared.ParseHexColor("FF6B35")
 	if err == nil {
 		t.Fatal("expected error for missing #")
 	}
 }
 
 func TestParseHexColorInvalidLength(t *testing.T) {
-	_, err := infrastructure.ParseHexColor("#FFF")
+	_, err := shared.ParseHexColor("#FFF")
 	if err == nil {
 		t.Fatal("expected error for wrong length")
 	}
 }
 
 func TestParseHexColorInvalidChars(t *testing.T) {
-	_, err := infrastructure.ParseHexColor("#GGGGGG")
+	_, err := shared.ParseHexColor("#GGGGGG")
 	if err == nil {
 		t.Fatal("expected error for invalid hex chars")
 	}
 }
 
 func TestParseHexColorEmpty(t *testing.T) {
-	_, err := infrastructure.ParseHexColor("")
+	_, err := shared.ParseHexColor("")
 	if err == nil {
 		t.Fatal("expected error for empty string")
 	}
