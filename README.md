@@ -1,5 +1,13 @@
 # pen2pdf
 
+[![Build](https://github.com/vpedrosa/pen2pdf/actions/workflows/build.yml/badge.svg)](https://github.com/vpedrosa/pen2pdf/actions/workflows/build.yml)
+[![Test](https://github.com/vpedrosa/pen2pdf/actions/workflows/test.yml/badge.svg)](https://github.com/vpedrosa/pen2pdf/actions/workflows/test.yml)
+[![Lint](https://github.com/vpedrosa/pen2pdf/actions/workflows/lint.yml/badge.svg)](https://github.com/vpedrosa/pen2pdf/actions/workflows/lint.yml)
+[![Release](https://img.shields.io/github/v/release/vpedrosa/pen2pdf)](https://github.com/vpedrosa/pen2pdf/releases/latest)
+[![Go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go&logoColor=white)](https://go.dev/)
+[![Cobra](https://img.shields.io/badge/Cobra-v1.10-blue)](https://cobra.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 CLI tool to generate PDF documents from `.pen` files — a JSON-based design format.
 
 ## Features
