@@ -54,8 +54,8 @@ func (l *FSFontLoader) LoadFont(family, weight, style string) (*asset.FontData, 
 }
 
 // fontFileCandidates generates potential filename patterns for a font.
-// Includes static font names (e.g., "Inter-Bold.ttf") and variable font
-// names (e.g., "Inter-VariableFont_wght.ttf").
+// Only matches static font files (one .ttf per weight). Variable fonts are
+// excluded because gopdf cannot select weight axes from them.
 func fontFileCandidates(family, weight, style string) []string {
 	suffix := weightToSuffix(weight)
 	if style == "italic" && suffix != "" {
@@ -76,25 +76,6 @@ func fontFileCandidates(family, weight, style string) []string {
 		for _, ext := range []string{".ttf", ".otf"} {
 			candidates = append(candidates, name+"-"+suffix+ext)
 		}
-	}
-
-	// Variable font files — a single file contains all weights
-	if style == "italic" {
-		for _, name := range []string{familyNoSpaces, family} {
-			candidates = append(candidates,
-				name+"-Italic-VariableFont_wght.ttf",
-				name+"-Italic-VariableFont_opsz,wght.ttf",
-				name+"-Italic-VariableFont_wdth,wght.ttf",
-			)
-		}
-	}
-	// Non-italic variable font (also used as fallback for italic if italic variant doesn't exist)
-	for _, name := range []string{familyNoSpaces, family} {
-		candidates = append(candidates,
-			name+"-VariableFont_wght.ttf",
-			name+"-VariableFont_opsz,wght.ttf",
-			name+"-VariableFont_wdth,wght.ttf",
-		)
 	}
 
 	// Last resort: Regular static font (for single-weight fonts like Bebas Neue)

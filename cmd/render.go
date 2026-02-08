@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -18,6 +19,7 @@ import (
 var (
 	outputPath string
 	pagesFlag  string
+	noPrompt   bool
 )
 
 var renderCmd = &cobra.Command{
@@ -31,6 +33,7 @@ var renderCmd = &cobra.Command{
 func init() {
 	renderCmd.Flags().StringVarP(&outputPath, "output", "o", "", "output PDF file path (default: input with .pdf extension)")
 	renderCmd.Flags().StringVar(&pagesFlag, "pages", "", "comma-separated page names to render (default: all)")
+	renderCmd.Flags().BoolVar(&noPrompt, "no-prompt", false, "skip interactive prompts (for CI/scripts)")
 	rootCmd.AddCommand(renderCmd)
 }
 
@@ -74,12 +77,18 @@ func runRender(cmd *cobra.Command, args []string) error {
 	// Set up asset loaders
 	baseDir := filepath.Dir(inputPath)
 	imageLoader := assetInfra.NewFSImageLoader(baseDir)
+	fontsDir := filepath.Join(baseDir, "fonts")
 
-	fontDirs := []string{filepath.Join(baseDir, "fonts"), "/usr/share/fonts", "/usr/local/share/fonts"}
+	fontDirs := []string{fontsDir, "/usr/share/fonts", "/usr/local/share/fonts"}
 	if home, err := os.UserHomeDir(); err == nil {
 		fontDirs = append(fontDirs, filepath.Join(home, ".local", "share", "fonts"))
 	}
 	fontLoader := assetInfra.NewFSFontLoader(fontDirs...)
+
+	// Check for missing fonts and offer to download
+	if err := checkAndDownloadFonts(cmd, doc, fontLoader, fontsDir); err != nil {
+		return err
+	}
 
 	// Layout
 	measurer := layoutInfra.NewGopdfTextMeasurer(fontLoader)
@@ -102,6 +111,64 @@ func runRender(cmd *cobra.Command, args []string) error {
 	}
 
 	cmd.Printf("PDF written to %s (%d pages)\n", output, len(pages))
+	return nil
+}
+
+func checkAndDownloadFonts(cmd *cobra.Command, doc *shared.Document, fontLoader *assetInfra.FSFontLoader, fontsDir string) error {
+	refs := shared.CollectFontRefs(doc)
+
+	var missing []shared.FontRef
+	for _, ref := range refs {
+		_, err := fontLoader.LoadFont(ref.Family, ref.Weight, ref.Style)
+		if err != nil {
+			missing = append(missing, ref)
+		}
+	}
+
+	if len(missing) == 0 {
+		return nil
+	}
+
+	cmd.Printf("Missing %d font(s):\n", len(missing))
+	for _, ref := range missing {
+		label := ref.Family + " " + ref.Weight
+		if ref.Style != "" {
+			label += " " + ref.Style
+		}
+		cmd.Printf("  - %s\n", label)
+	}
+
+	if noPrompt {
+		cmd.Println("Skipping download (--no-prompt). Fallback fonts will be used.")
+		return nil
+	}
+
+	cmd.Printf("\nDownload from Google Fonts to %s? [Y/n] ", fontsDir)
+	reader := bufio.NewReader(os.Stdin)
+	answer, _ := reader.ReadString('\n')
+	answer = strings.TrimSpace(strings.ToLower(answer))
+
+	if answer != "" && answer != "y" && answer != "yes" && answer != "s" && answer != "si" && answer != "sí" {
+		cmd.Println("Skipping download. Fallback fonts will be used.")
+		return nil
+	}
+
+	downloader := assetInfra.NewGoogleFontDownloader()
+	downloaded := 0
+	for _, ref := range missing {
+		path, err := downloader.Download(ref.Family, ref.Weight, ref.Style, fontsDir)
+		if err != nil {
+			cmd.PrintErrf("  warning: could not download %s %s: %v\n", ref.Family, ref.Weight, err)
+			continue
+		}
+		cmd.Printf("  downloaded: %s\n", filepath.Base(path))
+		downloaded++
+	}
+
+	if downloaded > 0 {
+		cmd.Printf("%d font(s) downloaded to %s\n\n", downloaded, fontsDir)
+	}
+
 	return nil
 }
 
