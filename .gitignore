@@ -24,6 +24,9 @@ tmp/
 *.swo
 *~
 
+# Output
+*.pdf
+
 # OS
 .DS_Store
 Thumbs.db
