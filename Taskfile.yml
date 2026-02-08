@@ -42,6 +42,11 @@ tasks:
     cmds:
       - rm -rf bin/ tmp/ coverage.out
 
+  test-integration:
+    desc: Run integration tests
+    cmds:
+      - go test ./test/integration/... -tags=integration -v
+
   fmt:
     desc: Format code
     cmds:

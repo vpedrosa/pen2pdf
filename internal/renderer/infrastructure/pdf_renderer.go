@@ -79,6 +79,10 @@ func (r *PDFRenderer) renderFrame(pdf *gopdf.GoPdf, box *layout.LayoutBox, frame
 }
 
 func (r *PDFRenderer) drawSolidRect(pdf *gopdf.GoPdf, x, y, w, h float64, color string, radius float64, _ bool) error {
+	if w <= 0 || h <= 0 {
+		return nil
+	}
+
 	rgba, err := ParseHexColor(color)
 	if err != nil {
 		return err
@@ -165,7 +169,7 @@ func (r *PDFRenderer) drawImage(pdf *gopdf.GoPdf, x, y, w, h float64, fill *shar
 }
 
 func (r *PDFRenderer) renderText(pdf *gopdf.GoPdf, box *layout.LayoutBox, text *shared.Text) error {
-	if text.Content == "" {
+	if text.Content == "" || r.fontLoader == nil {
 		return nil
 	}
 
