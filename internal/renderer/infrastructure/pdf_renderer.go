@@ -114,6 +114,11 @@ func (r *PDFRenderer) drawSolidRect(pdf *gopdf.GoPdf, x, y, w, h float64, color 
 	}
 
 	if radius > 0 {
+		// Clamp radius to half the smallest dimension
+		maxRadius := math.Min(w, h) / 2
+		if radius > maxRadius {
+			radius = maxRadius
+		}
 		if err := pdf.Rectangle(x, y, x+w, y+h, "F", radius, 20); err != nil {
 			return err
 		}
@@ -227,23 +232,24 @@ func (r *PDFRenderer) renderText(pdf *gopdf.GoPdf, box *layout.LayoutBox, text *
 		lineHeight = text.FontSize * text.LineHeight
 	}
 
+	// Determine horizontal alignment for CellWithOption
+	hAlign := gopdf.Left
+	switch text.TextAlign {
+	case "center":
+		hAlign = gopdf.Center
+	case "right":
+		hAlign = gopdf.Right
+	}
+
 	lines := strings.Split(text.Content, "\n")
 	currentY := box.Y
 
 	for _, line := range lines {
-		lineWidth, _ := pdf.MeasureTextWidth(line)
-		textX := box.X
-
-		switch text.TextAlign {
-		case "center":
-			textX = box.X + (box.Width-lineWidth)/2
-		case "right":
-			textX = box.X + box.Width - lineWidth
-		}
-
-		pdf.SetX(textX)
+		pdf.SetX(box.X)
 		pdf.SetY(currentY)
-		if err := pdf.Text(line); err != nil {
+		if err := pdf.CellWithOption(&gopdf.Rect{W: box.Width, H: lineHeight}, line, gopdf.CellOption{
+			Align: hAlign | gopdf.Top,
+		}); err != nil {
 			return fmt.Errorf("render text: %w", err)
 		}
 		currentY += lineHeight

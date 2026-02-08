@@ -22,7 +22,7 @@ func (e *FlexboxEngine) Layout(doc *shared.Document, measurer layout.TextMeasure
 			return nil, fmt.Errorf("top-level node %q must be a frame", child.GetID())
 		}
 
-		root := layoutFrame(frame, frame.X, frame.Y, frame.Width.Value, frame.Height.Value, measurer)
+		root := layoutFrame(frame, 0, 0, frame.Width.Value, frame.Height.Value, measurer)
 		pages = append(pages, layout.Page{
 			Width:  frame.Width.Value,
 			Height: frame.Height.Value,
@@ -54,14 +54,11 @@ func layoutFrame(frame *shared.Frame, x, y, w, h float64, measurer layout.TextMe
 
 	// Phase 1: Measure all children to determine fixed vs fill_container sizes
 	type childInfo struct {
-		node          shared.Node
-		width         float64
-		height        float64
-		fillWidth     bool
-		fillHeight    bool
-		isFixed       bool
-		measuredW     float64
-		measuredH     float64
+		node       shared.Node
+		width      float64
+		height     float64
+		fillWidth  bool
+		fillHeight bool
 	}
 
 	children := make([]childInfo, len(frame.Children))
@@ -85,6 +82,16 @@ func layoutFrame(frame *shared.Frame, x, y, w, h float64, measurer layout.TextMe
 			if !info.fillHeight {
 				info.height = n.Height.Value
 			}
+			// Auto-size: compute intrinsic size when dimension is missing
+			if (info.width == 0 && !info.fillWidth) || (info.height == 0 && !info.fillHeight) {
+				iw, ih := intrinsicSize(n, measurer, contentW)
+				if info.width == 0 && !info.fillWidth {
+					info.width = iw
+				}
+				if info.height == 0 && !info.fillHeight {
+					info.height = ih
+				}
+			}
 		case *shared.Text:
 			info.fillWidth = n.Width.FillContainer
 			if !info.fillWidth && n.Width.Value > 0 {
@@ -97,8 +104,6 @@ func layoutFrame(frame *shared.Frame, x, y, w, h float64, measurer layout.TextMe
 					maxW = contentW
 				}
 				tw, th := measurer.MeasureText(n.Content, n.FontFamily, n.FontSize, n.FontWeight, maxW)
-				info.measuredW = tw
-				info.measuredH = th
 				if info.width == 0 && !info.fillWidth {
 					info.width = tw
 				}
@@ -237,6 +242,80 @@ func layoutFrame(frame *shared.Frame, x, y, w, h float64, measurer layout.TextMe
 	}
 
 	return box
+}
+
+// intrinsicSize computes the natural size of a frame based on its children.
+// Used when a frame has no explicit width/height and is not fill_container.
+func intrinsicSize(frame *shared.Frame, measurer layout.TextMeasurer, availableW float64) (float64, float64) {
+	padH := frame.Padding.Left + frame.Padding.Right
+	padV := frame.Padding.Top + frame.Padding.Bottom
+
+	if len(frame.Children) == 0 {
+		return padH, padV
+	}
+
+	contentW := availableW - padH
+	if contentW < 0 {
+		contentW = 0
+	}
+
+	isVertical := frame.Layout == "vertical"
+
+	var totalMain, maxCross float64
+	gaps := 0.0
+	if len(frame.Children) > 1 {
+		gaps = float64(len(frame.Children)-1) * frame.Gap
+	}
+
+	for _, child := range frame.Children {
+		var cw, ch float64
+
+		switch n := child.(type) {
+		case *shared.Frame:
+			if n.Width.Value > 0 {
+				cw = n.Width.Value
+			} else if !n.Width.FillContainer {
+				cw, _ = intrinsicSize(n, measurer, contentW)
+			}
+			if n.Height.Value > 0 {
+				ch = n.Height.Value
+			} else if !n.Height.FillContainer {
+				_, ch = intrinsicSize(n, measurer, contentW)
+			}
+		case *shared.Text:
+			if n.Width.Value > 0 {
+				cw = n.Width.Value
+			}
+			if measurer != nil {
+				maxW := cw
+				if maxW == 0 {
+					maxW = contentW
+				}
+				tw, th := measurer.MeasureText(n.Content, n.FontFamily, n.FontSize, n.FontWeight, maxW)
+				if cw == 0 {
+					cw = tw
+				}
+				ch = th
+			}
+		}
+
+		if isVertical {
+			totalMain += ch
+			if cw > maxCross {
+				maxCross = cw
+			}
+		} else {
+			totalMain += cw
+			if ch > maxCross {
+				maxCross = ch
+			}
+		}
+	}
+
+	if isVertical {
+		return maxCross + padH, totalMain + gaps + padV
+	}
+	return totalMain + gaps + padH, maxCross + padV
 }
 
 func crossOffset(alignItems string, available, size float64) float64 {

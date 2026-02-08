@@ -74,11 +74,12 @@ func runRender(cmd *cobra.Command, args []string) error {
 	// Set up asset loaders
 	baseDir := filepath.Dir(inputPath)
 	imageLoader := assetInfra.NewFSImageLoader(baseDir)
-	fontLoader := assetInfra.NewFSFontLoader(
-		filepath.Join(baseDir, "fonts"),
-		"/usr/share/fonts",
-		"/usr/local/share/fonts",
-	)
+
+	fontDirs := []string{filepath.Join(baseDir, "fonts"), "/usr/share/fonts", "/usr/local/share/fonts"}
+	if home, err := os.UserHomeDir(); err == nil {
+		fontDirs = append(fontDirs, filepath.Join(home, ".local", "share", "fonts"))
+	}
+	fontLoader := assetInfra.NewFSFontLoader(fontDirs...)
 
 	// Layout
 	measurer := layoutInfra.NewGopdfTextMeasurer(fontLoader)

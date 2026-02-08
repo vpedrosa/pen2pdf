@@ -51,6 +51,7 @@ func TestLayoutFixedDimensions(t *testing.T) {
 }
 
 func TestLayoutWithPosition(t *testing.T) {
+	// Root frames always start at (0,0) — canvas X/Y is ignored for PDF pages
 	doc := &shared.Document{
 		Children: []shared.Node{
 			&shared.Frame{
@@ -61,8 +62,8 @@ func TestLayoutWithPosition(t *testing.T) {
 	}
 
 	pages := mustLayout(t, doc)
-	if pages[0].Root.X != 96 || pages[0].Root.Y != 100 {
-		t.Errorf("expected root at (96,100), got (%f,%f)", pages[0].Root.X, pages[0].Root.Y)
+	if pages[0].Root.X != 0 || pages[0].Root.Y != 0 {
+		t.Errorf("expected root at (0,0), got (%f,%f)", pages[0].Root.X, pages[0].Root.Y)
 	}
 }
 
