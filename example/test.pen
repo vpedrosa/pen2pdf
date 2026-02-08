@@ -1,0 +1,995 @@
+{
+  "version": "2.7",
+  "children": [
+    {
+      "type": "frame",
+      "id": "gEklc",
+      "x": 96,
+      "y": 100,
+      "name": "Travel Flyer",
+      "clip": true,
+      "width": 800,
+      "height": 1000,
+      "fill": {
+        "type": "image",
+        "enabled": true,
+        "url": "./images/pexels-ly-lam-kh-huy-2159008331-35738373.jpg",
+        "mode": "fill"
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "0u9qY",
+          "name": "overlay",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "#000000BB",
+          "children": [
+            {
+              "type": "frame",
+              "id": "QpyUY",
+              "name": "content",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 20,
+              "padding": 40,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "FXrzB",
+                  "name": "badge",
+                  "fill": "#FF6B35",
+                  "cornerRadius": 20,
+                  "padding": [
+                    6,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "NJWqn",
+                      "name": "badgeText",
+                      "fill": "#FFFFFF",
+                      "content": "LIMITED OFFER",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "S23sH",
+                  "name": "headline",
+                  "fill": "#FFFFFF",
+                  "content": "Escape to Paradise!",
+                  "textAlign": "center",
+                  "fontFamily": "Playfair Display",
+                  "fontSize": 56,
+                  "fontWeight": "900",
+                  "letterSpacing": -2
+                },
+                {
+                  "type": "text",
+                  "id": "PhjXf",
+                  "name": "subheadline",
+                  "fill": "#FFE4B5",
+                  "content": "Discover incredible destinations with exclusive discounts",
+                  "lineHeight": 1.4,
+                  "textAlign": "center",
+                  "fontFamily": "Montserrat",
+                  "fontSize": 18,
+                  "fontWeight": "300"
+                },
+                {
+                  "type": "frame",
+                  "id": "vf0zS",
+                  "name": "spacer1",
+                  "width": 1,
+                  "height": 10
+                },
+                {
+                  "type": "frame",
+                  "id": "PtnOf",
+                  "name": "offerCard",
+                  "width": 550,
+                  "fill": "#FFFFFFDD",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 20,
+                  "padding": 30,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "d6oLz",
+                      "name": "discount",
+                      "fill": "#FF6B35",
+                      "content": "UP TO 50% OFF",
+                      "fontFamily": "Bebas Neue",
+                      "fontSize": 36,
+                      "fontWeight": "800",
+                      "letterSpacing": 1
+                    },
+                    {
+                      "type": "frame",
+                      "id": "M4tfK",
+                      "name": "destinations",
+                      "layout": "vertical",
+                      "gap": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "WpqfO",
+                          "name": "destTitle",
+                          "fill": "#2C3E50",
+                          "content": "Featured Destinations:",
+                          "fontFamily": "Raleway",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zG7aI",
+                          "name": "destList",
+                          "gap": 20,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "R7bGd",
+                              "name": "dest1",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "sv9lX",
+                                  "name": "dest1Icon",
+                                  "content": "🏝️",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 28,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "INMmH",
+                                  "name": "dest1Name",
+                                  "fill": "#16A085",
+                                  "content": "CANCUN",
+                                  "fontFamily": "Oswald",
+                                  "fontSize": 14,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "bbBaQ",
+                                  "name": "dest1Price",
+                                  "fill": "#7F8C8D",
+                                  "content": "From $599",
+                                  "fontFamily": "Open Sans",
+                                  "fontSize": 12
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "vlOKP",
+                              "name": "dest2",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "6QLHH",
+                                  "name": "dest2Icon",
+                                  "content": "🗼",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 28,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "QfaNo",
+                                  "name": "dest2Name",
+                                  "fill": "#8E44AD",
+                                  "content": "PARIS",
+                                  "fontFamily": "Oswald",
+                                  "fontSize": 14,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "qcjDp",
+                                  "name": "dest2Price",
+                                  "fill": "#7F8C8D",
+                                  "content": "From $799",
+                                  "fontFamily": "Open Sans",
+                                  "fontSize": 12
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "MW4HM",
+                              "name": "dest3",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "e6Tso",
+                                  "name": "dest3Icon",
+                                  "content": "🏛️",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 28,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "g7z6X",
+                                  "name": "dest3Name",
+                                  "fill": "#E74C3C",
+                                  "content": "ROME",
+                                  "fontFamily": "Oswald",
+                                  "fontSize": 14,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "S5kkL",
+                                  "name": "dest3Price",
+                                  "fill": "#7F8C8D",
+                                  "content": "From $699",
+                                  "fontFamily": "Open Sans",
+                                  "fontSize": 12
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sasMg",
+                      "name": "divider",
+                      "width": "fill_container",
+                      "height": 1,
+                      "fill": "#E0E0E0"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uY1Tu",
+                      "name": "features",
+                      "layout": "vertical",
+                      "gap": 15,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "AAODZ",
+                          "name": "featTitle",
+                          "fill": "#2C3E50",
+                          "content": "✨ Included in all packages ✨",
+                          "textAlign": "center",
+                          "fontFamily": "Poppins",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "kky2Q",
+                          "name": "featList",
+                          "gap": 24,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Gebry",
+                              "name": "feat1",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "OHarc",
+                                  "name": "feat1Check",
+                                  "fill": "#27AE60",
+                                  "content": "✓",
+                                  "fontFamily": "Arial",
+                                  "fontSize": 16,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "PHjEN",
+                                  "name": "feat1Text",
+                                  "fill": "#34495E",
+                                  "content": "Round-trip flight",
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "UcVY8",
+                              "name": "feat2",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "TJ0Ux",
+                                  "name": "feat2Check",
+                                  "fill": "#27AE60",
+                                  "content": "✓",
+                                  "fontFamily": "Arial",
+                                  "fontSize": 16,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Oi1UB",
+                                  "name": "feat2Text",
+                                  "fill": "#34495E",
+                                  "content": "4★ Hotel",
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "3Q96X",
+                              "name": "feat3",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "eirDC",
+                                  "name": "feat3Check",
+                                  "fill": "#27AE60",
+                                  "content": "✓",
+                                  "fontFamily": "Arial",
+                                  "fontSize": 16,
+                                  "fontWeight": "700"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "n4DP3",
+                                  "name": "feat3Text",
+                                  "fill": "#34495E",
+                                  "content": "Breakfast included",
+                                  "fontFamily": "Roboto",
+                                  "fontSize": 12,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "T98Di",
+                  "name": "spacer2",
+                  "width": 1,
+                  "height": 15
+                },
+                {
+                  "type": "frame",
+                  "id": "uwvDZ",
+                  "name": "ctaSection",
+                  "layout": "vertical",
+                  "gap": 15,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "LlbOs",
+                      "name": "ctaButton",
+                      "fill": "#FF6B35",
+                      "cornerRadius": 30,
+                      "padding": [
+                        12,
+                        36
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "JkiFX",
+                          "name": "ctaText",
+                          "fill": "#FFFFFF",
+                          "content": "BOOK NOW!",
+                          "fontFamily": "Montserrat",
+                          "fontSize": 18,
+                          "fontWeight": "800",
+                          "letterSpacing": 1
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "aM7tf",
+                      "name": "urgency",
+                      "fill": "#FFE4B5",
+                      "content": "⏰ Offer valid until December 31st",
+                      "fontFamily": "Lato",
+                      "fontSize": 14,
+                      "fontWeight": "500",
+                      "fontStyle": "italic"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "XIFBs",
+                      "name": "contactSection",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ghTqT",
+                          "name": "phone",
+                          "fill": "#FFFFFF",
+                          "content": "📞 1-800-TRAVEL",
+                          "fontFamily": "Source Sans Pro",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "1AvTH",
+                          "name": "web",
+                          "fill": "#B3E5FC",
+                          "content": "🌐 www.paradisetravel.com",
+                          "fontFamily": "Nunito",
+                          "fontSize": 14
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "3PBjn",
+                  "name": "footer",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kBelD",
+                      "name": "star1",
+                      "content": "⭐",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "xRgI6",
+                      "name": "footerText",
+                      "fill": "#FFE4B5",
+                      "content": "Your adventure awaits",
+                      "fontFamily": "Quicksand",
+                      "fontSize": 12,
+                      "fontWeight": "300",
+                      "letterSpacing": 0.5,
+                      "fontStyle": "italic"
+                    },
+                    {
+                      "type": "text",
+                      "id": "fzQW9",
+                      "name": "star2",
+                      "content": "⭐",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "uGhC0",
+      "x": 950,
+      "y": 100,
+      "name": "Travel Flyer - Back",
+      "clip": true,
+      "width": 800,
+      "height": 1000,
+      "fill": {
+        "type": "image",
+        "opacity": 0.3,
+        "enabled": true,
+        "url": "../images/pexels-ly-lam-kh-huy-2159008331-35738373.jpg",
+        "mode": "fill"
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "DtaWA",
+          "name": "backOverlay",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "#FFFFFFEE",
+          "children": [
+            {
+              "type": "frame",
+              "id": "8ukEr",
+              "name": "backContent",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 15,
+              "padding": 50,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "JnDkn",
+                  "name": "header",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    0,
+                    10,
+                    0
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QBnHo",
+                      "name": "tcTitle",
+                      "fill": "$primary-color",
+                      "content": "TERMS & CONDITIONS",
+                      "fontFamily": "Bebas Neue",
+                      "fontSize": 28,
+                      "fontWeight": "800",
+                      "letterSpacing": 1
+                    },
+                    {
+                      "type": "text",
+                      "id": "hWtSh",
+                      "name": "tcSubtitle",
+                      "fill": "$text-muted",
+                      "content": "Please read carefully before booking",
+                      "fontFamily": "Open Sans",
+                      "fontSize": 14,
+                      "fontStyle": "italic"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fTJCJ",
+                  "name": "divider1",
+                  "width": 700,
+                  "height": 1,
+                  "fill": "$primary-color"
+                },
+                {
+                  "type": "frame",
+                  "id": "S2uQg",
+                  "name": "termsContainer",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 15,
+                  "padding": [
+                    15,
+                    0
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "NqlMp",
+                      "name": "term1",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "p8oLL",
+                          "name": "term1Title",
+                          "fill": "$text-primary",
+                          "content": "1. BOOKING & PAYMENT",
+                          "textAlign": "center",
+                          "fontFamily": "Montserrat",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "tLAkp",
+                          "name": "term1Text",
+                          "fill": "$text-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": 600,
+                          "content": "• Full payment required within 48 hours of booking confirmation\n• All prices are per person based on double occupancy\n• Single supplement charges may apply\n• Prices subject to availability and seasonal variations",
+                          "lineHeight": 1.5,
+                          "textAlign": "center",
+                          "fontFamily": "Open Sans",
+                          "fontSize": 11
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "2oJMv",
+                      "name": "term2",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ky0gN",
+                          "name": "term2Title",
+                          "fill": "$text-primary",
+                          "content": "2. CANCELLATION POLICY",
+                          "textAlign": "center",
+                          "fontFamily": "Montserrat",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "U5bzl",
+                          "name": "term2Text",
+                          "fill": "$text-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": 600,
+                          "content": "• 30+ days before departure: Full refund minus $50 processing fee\n• 15-29 days: 50% refund of total amount\n• 14 days or less: No refund\n• Travel insurance strongly recommended",
+                          "lineHeight": 1.5,
+                          "textAlign": "center",
+                          "fontFamily": "Open Sans",
+                          "fontSize": 11
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "neYUt",
+                      "name": "term3",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "eXTgJ",
+                          "name": "term3Title",
+                          "fill": "$text-primary",
+                          "content": "3. INCLUSIONS & EXCLUSIONS",
+                          "textAlign": "center",
+                          "fontFamily": "Montserrat",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "AqaL1",
+                          "name": "term3Text",
+                          "fill": "$text-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": 600,
+                          "content": "Included:\n• Round-trip economy airfare\n• 4-star hotel accommodation\n• Daily breakfast\n• Airport transfers\n\nNot Included:\n• Travel insurance\n• Meals other than breakfast\n• Personal expenses\n• Optional excursions",
+                          "lineHeight": 1.5,
+                          "textAlign": "center",
+                          "fontFamily": "Open Sans",
+                          "fontSize": 11
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "5HVx9",
+                      "name": "term4",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "j4Bdt",
+                          "name": "term4Title",
+                          "fill": "$text-primary",
+                          "content": "4. TRAVEL REQUIREMENTS",
+                          "textAlign": "center",
+                          "fontFamily": "Montserrat",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "KktWW",
+                          "name": "term4Text",
+                          "fill": "$text-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": 600,
+                          "content": "• Valid passport required (minimum 6 months validity)\n• Visa requirements vary by destination\n• Traveler responsible for all documentation\n• Health/vaccination requirements per destination",
+                          "lineHeight": 1.5,
+                          "textAlign": "center",
+                          "fontFamily": "Open Sans",
+                          "fontSize": 11
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SRKmX",
+                      "name": "term5",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Zewqc",
+                          "name": "term5Title",
+                          "fill": "$text-primary",
+                          "content": "5. LIABILITY & DISCLAIMERS",
+                          "textAlign": "center",
+                          "fontFamily": "Montserrat",
+                          "fontSize": 14,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "1eGfA",
+                          "name": "term5Text",
+                          "fill": "$text-secondary",
+                          "textGrowth": "fixed-width",
+                          "width": 600,
+                          "content": "• Paradise Travel acts only as an agent\n• Not liable for delays, cancellations, or changes by airlines/hotels\n• Trip interruption due to weather or force majeure non-refundable\n• Maximum liability limited to trip cost",
+                          "lineHeight": 1.5,
+                          "textAlign": "center",
+                          "fontFamily": "Open Sans",
+                          "fontSize": 11
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "zDDJd",
+                  "name": "divider2",
+                  "width": 700,
+                  "height": 1,
+                  "fill": "$primary-color"
+                },
+                {
+                  "type": "frame",
+                  "id": "txUKz",
+                  "name": "footer",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": [
+                    15,
+                    0,
+                    0,
+                    0
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "WjWAN",
+                      "name": "footerText1",
+                      "fill": "$text-primary",
+                      "content": "Paradise Travel International LLC",
+                      "fontFamily": "Montserrat",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "zNS2U",
+                      "name": "footerText2",
+                      "fill": "$text-muted",
+                      "content": "License #TCR-2024-5847 | IATA Accredited | Member of USTOA",
+                      "fontFamily": "Open Sans",
+                      "fontSize": 10
+                    },
+                    {
+                      "type": "text",
+                      "id": "6Iiyd",
+                      "name": "footerText3",
+                      "fill": "$text-muted",
+                      "content": "© 2024 Paradise Travel. All rights reserved.",
+                      "fontFamily": "Open Sans",
+                      "fontSize": 10
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "accent-color": {
+      "type": "color",
+      "value": "#8E44AD"
+    },
+    "bg-card": {
+      "type": "color",
+      "value": "#FFFFFFDD"
+    },
+    "bg-divider": {
+      "type": "color",
+      "value": "#E0E0E0"
+    },
+    "bg-overlay": {
+      "type": "color",
+      "value": "#000000BB"
+    },
+    "danger-color": {
+      "type": "color",
+      "value": "#E74C3C"
+    },
+    "font-accent": {
+      "type": "string",
+      "value": "Bebas Neue"
+    },
+    "font-body": {
+      "type": "string",
+      "value": "Open Sans"
+    },
+    "font-display": {
+      "type": "string",
+      "value": "Playfair Display"
+    },
+    "font-heading": {
+      "type": "string",
+      "value": "Montserrat"
+    },
+    "font-secondary": {
+      "type": "string",
+      "value": "Roboto"
+    },
+    "font-size-2xl": {
+      "type": "number",
+      "value": 24
+    },
+    "font-size-3xl": {
+      "type": "number",
+      "value": 36
+    },
+    "font-size-4xl": {
+      "type": "number",
+      "value": 56
+    },
+    "font-size-lg": {
+      "type": "number",
+      "value": 16
+    },
+    "font-size-md": {
+      "type": "number",
+      "value": 14
+    },
+    "font-size-sm": {
+      "type": "number",
+      "value": 12
+    },
+    "font-size-xl": {
+      "type": "number",
+      "value": 18
+    },
+    "font-size-xs": {
+      "type": "number",
+      "value": 11
+    },
+    "primary-color": {
+      "type": "color",
+      "value": "#FF6B35"
+    },
+    "radius-lg": {
+      "type": "number",
+      "value": 20
+    },
+    "radius-md": {
+      "type": "number",
+      "value": 16
+    },
+    "radius-sm": {
+      "type": "number",
+      "value": 8
+    },
+    "radius-xl": {
+      "type": "number",
+      "value": 30
+    },
+    "secondary-color": {
+      "type": "color",
+      "value": "#16A085"
+    },
+    "spacing-2xl": {
+      "type": "number",
+      "value": 40
+    },
+    "spacing-lg": {
+      "type": "number",
+      "value": 20
+    },
+    "spacing-md": {
+      "type": "number",
+      "value": 15
+    },
+    "spacing-sm": {
+      "type": "number",
+      "value": 10
+    },
+    "spacing-xl": {
+      "type": "number",
+      "value": 30
+    },
+    "spacing-xs": {
+      "type": "number",
+      "value": 6
+    },
+    "success-color": {
+      "type": "color",
+      "value": "#27AE60"
+    },
+    "text-accent": {
+      "type": "color",
+      "value": "#B3E5FC"
+    },
+    "text-light": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "text-muted": {
+      "type": "color",
+      "value": "#7F8C8D"
+    },
+    "text-primary": {
+      "type": "color",
+      "value": "#2C3E50"
+    },
+    "text-secondary": {
+      "type": "color",
+      "value": "#34495E"
+    },
+    "text-warm": {
+      "type": "color",
+      "value": "#FFE4B5"
+    }
+  }
+}
