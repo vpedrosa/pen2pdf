@@ -35,7 +35,7 @@ func (l *FSImageLoader) LoadImage(path string) (*asset.ImageData, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open image %q: %w", path, err)
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	cfg, _, err := image.DecodeConfig(f)
 	if err != nil {

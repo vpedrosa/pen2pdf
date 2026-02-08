@@ -25,7 +25,7 @@ func (l *FSFontLoader) LoadFont(family, weight, style string) (*asset.FontData, 
 		for _, candidate := range candidates {
 			// Search recursively within each font directory
 			var found string
-			filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+			_ = filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
 				if err != nil || found != "" || d.IsDir() {
 					return nil
 				}

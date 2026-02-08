@@ -22,7 +22,7 @@ func TestRenderCommandRegistered(t *testing.T) {
 func TestRenderCommandHasOutputFlag(t *testing.T) {
 	f := renderCmd.Flags().Lookup("output")
 	if f == nil {
-		t.Error("expected --output flag")
+		t.Fatal("expected --output flag")
 	}
 	if f.Shorthand != "o" {
 		t.Errorf("expected shorthand 'o', got '%s'", f.Shorthand)

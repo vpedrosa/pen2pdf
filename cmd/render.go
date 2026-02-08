@@ -52,7 +52,7 @@ func runRender(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
-	defer inputFile.Close()
+	defer inputFile.Close() //nolint:errcheck
 
 	parser := parserInfra.NewJSONParser()
 	doc, err := parser.Parse(inputFile)
@@ -103,7 +103,7 @@ func runRender(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("create output: %w", err)
 	}
-	defer outputFile.Close()
+	defer outputFile.Close() //nolint:errcheck
 
 	renderer := rendererInfra.NewPDFRenderer(imageLoader, fontLoader)
 	if err := renderer.Render(pages, outputFile); err != nil {

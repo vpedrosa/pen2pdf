@@ -61,7 +61,8 @@ func (r *PDFRenderer) Render(pages []layout.Page, output io.Writer) error {
 		}
 	}
 
-	return pdf.Write(output)
+	_, err := pdf.WriteTo(output)
+	return err
 }
 
 func (r *PDFRenderer) renderBox(pdf *gopdf.GoPdf, box *layout.LayoutBox) error {
@@ -110,7 +111,9 @@ func (r *PDFRenderer) drawSolidRect(pdf *gopdf.GoPdf, x, y, w, h float64, color 
 
 	pdf.SetFillColor(rgba.R, rgba.G, rgba.B)
 	if rgba.A < 1.0 {
-		pdf.SetTransparency(gopdf.Transparency{Alpha: rgba.A, BlendModeType: gopdf.NormalBlendMode})
+		if err := pdf.SetTransparency(gopdf.Transparency{Alpha: rgba.A, BlendModeType: gopdf.NormalBlendMode}); err != nil {
+			return err
+		}
 	}
 
 	if radius > 0 {
@@ -127,7 +130,9 @@ func (r *PDFRenderer) drawSolidRect(pdf *gopdf.GoPdf, x, y, w, h float64, color 
 	}
 
 	if rgba.A < 1.0 {
-		pdf.SetTransparency(gopdf.Transparency{Alpha: 1.0, BlendModeType: gopdf.NormalBlendMode})
+		if err := pdf.SetTransparency(gopdf.Transparency{Alpha: 1.0, BlendModeType: gopdf.NormalBlendMode}); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -144,7 +149,9 @@ func (r *PDFRenderer) drawImage(pdf *gopdf.GoPdf, x, y, w, h float64, fill *shar
 	}
 
 	if fill.Opacity > 0 && fill.Opacity < 1.0 {
-		pdf.SetTransparency(gopdf.Transparency{Alpha: fill.Opacity, BlendModeType: gopdf.NormalBlendMode})
+		if err := pdf.SetTransparency(gopdf.Transparency{Alpha: fill.Opacity, BlendModeType: gopdf.NormalBlendMode}); err != nil {
+			return err
+		}
 	}
 
 	// Calculate fill mode dimensions (cover)
@@ -187,7 +194,9 @@ func (r *PDFRenderer) drawImage(pdf *gopdf.GoPdf, x, y, w, h float64, fill *shar
 	}
 
 	if fill.Opacity > 0 && fill.Opacity < 1.0 {
-		pdf.SetTransparency(gopdf.Transparency{Alpha: 1.0, BlendModeType: gopdf.NormalBlendMode})
+		if err := pdf.SetTransparency(gopdf.Transparency{Alpha: 1.0, BlendModeType: gopdf.NormalBlendMode}); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -217,13 +226,17 @@ func (r *PDFRenderer) renderText(pdf *gopdf.GoPdf, box *layout.LayoutBox, text *
 		}
 		pdf.SetTextColor(rgba.R, rgba.G, rgba.B)
 		if rgba.A < 1.0 {
-			pdf.SetTransparency(gopdf.Transparency{Alpha: rgba.A, BlendModeType: gopdf.NormalBlendMode})
+			if err := pdf.SetTransparency(gopdf.Transparency{Alpha: rgba.A, BlendModeType: gopdf.NormalBlendMode}); err != nil {
+				return err
+			}
 		}
 	}
 
 	// Set letter spacing
 	if text.LetterSpacing != 0 {
-		pdf.SetCharSpacing(text.LetterSpacing)
+		if err := pdf.SetCharSpacing(text.LetterSpacing); err != nil {
+			return err
+		}
 	}
 
 	// Render lines
@@ -257,10 +270,14 @@ func (r *PDFRenderer) renderText(pdf *gopdf.GoPdf, box *layout.LayoutBox, text *
 
 	// Reset letter spacing
 	if text.LetterSpacing != 0 {
-		pdf.SetCharSpacing(0)
+		if err := pdf.SetCharSpacing(0); err != nil {
+			return err
+		}
 	}
 	// Reset transparency
-	pdf.SetTransparency(gopdf.Transparency{Alpha: 1.0, BlendModeType: gopdf.NormalBlendMode})
+	if err := pdf.SetTransparency(gopdf.Transparency{Alpha: 1.0, BlendModeType: gopdf.NormalBlendMode}); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -28,7 +28,7 @@ func runValidate(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
-	defer inputFile.Close()
+	defer inputFile.Close() //nolint:errcheck
 
 	parser := parserInfra.NewJSONParser()
 	doc, err := parser.Parse(inputFile)

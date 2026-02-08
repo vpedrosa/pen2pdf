@@ -99,10 +99,10 @@ func (d *GoogleFontDownloader) fetchTTFURL(cssURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Google Fonts returned HTTP %d", resp.StatusCode)
+		return "", fmt.Errorf("google fonts returned HTTP %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -123,7 +123,7 @@ func (d *GoogleFontDownloader) fetchBytes(rawURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("HTTP %d", resp.StatusCode)

@@ -77,7 +77,7 @@ func createTestPNG(t *testing.T, path string, w, h int) {
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	img.Set(0, 0, color.RGBA{R: 255, A: 255})
