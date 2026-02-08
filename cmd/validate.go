@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/vpedrosa/pen2pdf/internal/application"
 	parserInfra "github.com/vpedrosa/pen2pdf/internal/parser/infrastructure"
 	resolverInfra "github.com/vpedrosa/pen2pdf/internal/resolver/infrastructure"
 )
@@ -30,17 +31,16 @@ func runValidate(cmd *cobra.Command, args []string) error {
 	}
 	defer inputFile.Close() //nolint:errcheck
 
-	parser := parserInfra.NewJSONParser()
-	doc, err := parser.Parse(inputFile)
+	svc := application.NewValidateService(
+		parserInfra.NewJSONParser(),
+		resolverInfra.NewVariableResolver(),
+	)
+
+	result, err := svc.Validate(inputFile)
 	if err != nil {
-		return fmt.Errorf("parse error: %w", err)
+		return err
 	}
 
-	resolver := resolverInfra.NewVariableResolver()
-	if err := resolver.Resolve(doc); err != nil {
-		return fmt.Errorf("resolve error: %w", err)
-	}
-
-	cmd.Printf("Valid: %s (%d pages, %d variables)\n", inputPath, len(doc.Children), len(doc.Variables))
+	cmd.Printf("Valid: %s (%d pages, %d variables)\n", inputPath, result.PageCount, result.VariableCount)
 	return nil
 }

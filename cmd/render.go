@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/vpedrosa/pen2pdf/internal/application"
 	assetInfra "github.com/vpedrosa/pen2pdf/internal/asset/infrastructure"
 	layoutInfra "github.com/vpedrosa/pen2pdf/internal/layout/infrastructure"
 	parserInfra "github.com/vpedrosa/pen2pdf/internal/parser/infrastructure"
@@ -47,88 +48,60 @@ func runRender(cmd *cobra.Command, args []string) error {
 		output = strings.TrimSuffix(inputPath, ext) + ".pdf"
 	}
 
-	// Parse
-	inputFile, err := os.Open(inputPath)
-	if err != nil {
-		return fmt.Errorf("open input: %w", err)
-	}
-	defer inputFile.Close() //nolint:errcheck
-
-	parser := parserInfra.NewJSONParser()
-	doc, err := parser.Parse(inputFile)
-	if err != nil {
-		return fmt.Errorf("parse: %w", err)
-	}
-
-	// Resolve variables
-	resolver := resolverInfra.NewVariableResolver()
-	if err := resolver.Resolve(doc); err != nil {
-		return fmt.Errorf("resolve: %w", err)
-	}
-
-	// Filter pages if --pages flag is set
-	if pagesFlag != "" {
-		doc.Children, err = filterPages(doc.Children, pagesFlag)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Set up asset loaders
+	// Build infrastructure
 	baseDir := filepath.Dir(inputPath)
-	imageLoader := assetInfra.NewFSImageLoader(baseDir)
 	fontsDir := filepath.Join(baseDir, "fonts")
 
 	fontDirs := []string{fontsDir, "/usr/share/fonts", "/usr/local/share/fonts"}
 	if home, err := os.UserHomeDir(); err == nil {
 		fontDirs = append(fontDirs, filepath.Join(home, ".local", "share", "fonts"))
 	}
-	fontLoader := assetInfra.NewFSFontLoader(fontDirs...)
 
-	// Check for missing fonts and offer to download
-	if err := checkAndDownloadFonts(cmd, doc, fontLoader, fontsDir); err != nil {
+	parser := parserInfra.NewJSONParser()
+	resolver := resolverInfra.NewVariableResolver()
+	fontLoader := assetInfra.NewFSFontLoader(fontDirs...)
+	imageLoader := assetInfra.NewFSImageLoader(baseDir)
+	measurer := layoutInfra.NewGopdfTextMeasurer(fontLoader)
+	layoutEngine := layoutInfra.NewFlexboxEngine()
+	renderer := rendererInfra.NewPDFRenderer(imageLoader, fontLoader)
+
+	svc := application.NewRenderService(parser, resolver, fontLoader, imageLoader, layoutEngine, measurer, renderer)
+
+	// Check for missing fonts (interactive CLI concern)
+	inputFile, err := os.Open(inputPath)
+	if err != nil {
+		return fmt.Errorf("open input: %w", err)
+	}
+
+	missing, doc, err := svc.DetectMissingFonts(inputFile)
+	inputFile.Close() //nolint:errcheck
+	if err != nil {
 		return err
 	}
 
-	// Layout
-	measurer := layoutInfra.NewGopdfTextMeasurer(fontLoader)
-	layoutEngine := layoutInfra.NewFlexboxEngine()
-	pages, err := layoutEngine.Layout(doc, measurer)
-	if err != nil {
-		return fmt.Errorf("layout: %w", err)
+	if len(missing) > 0 {
+		if err := promptAndDownloadFonts(cmd, missing, fontsDir); err != nil {
+			return err
+		}
 	}
 
-	// Render
+	// Render using the already-parsed document
 	outputFile, err := os.Create(output)
 	if err != nil {
 		return fmt.Errorf("create output: %w", err)
 	}
 	defer outputFile.Close() //nolint:errcheck
 
-	renderer := rendererInfra.NewPDFRenderer(imageLoader, fontLoader)
-	if err := renderer.Render(pages, outputFile); err != nil {
-		return fmt.Errorf("render: %w", err)
+	result, err := svc.RenderDocument(doc, outputFile, pagesFlag)
+	if err != nil {
+		return err
 	}
 
-	cmd.Printf("PDF written to %s (%d pages)\n", output, len(pages))
+	cmd.Printf("PDF written to %s (%d pages)\n", output, result.PageCount)
 	return nil
 }
 
-func checkAndDownloadFonts(cmd *cobra.Command, doc *shared.Document, fontLoader *assetInfra.FSFontLoader, fontsDir string) error {
-	refs := shared.CollectFontRefs(doc)
-
-	var missing []shared.FontRef
-	for _, ref := range refs {
-		_, err := fontLoader.LoadFont(ref.Family, ref.Weight, ref.Style)
-		if err != nil {
-			missing = append(missing, ref)
-		}
-	}
-
-	if len(missing) == 0 {
-		return nil
-	}
-
+func promptAndDownloadFonts(cmd *cobra.Command, missing []shared.FontRef, fontsDir string) error {
 	cmd.Printf("Missing %d font(s):\n", len(missing))
 	for _, ref := range missing {
 		label := ref.Family + " " + ref.Weight
@@ -170,24 +143,4 @@ func checkAndDownloadFonts(cmd *cobra.Command, doc *shared.Document, fontLoader 
 	}
 
 	return nil
-}
-
-func filterPages(children []shared.Node, names string) ([]shared.Node, error) {
-	nameList := strings.Split(names, ",")
-	nameSet := make(map[string]bool, len(nameList))
-	for _, n := range nameList {
-		nameSet[strings.TrimSpace(n)] = true
-	}
-
-	var filtered []shared.Node
-	for _, child := range children {
-		if nameSet[child.GetName()] {
-			filtered = append(filtered, child)
-		}
-	}
-
-	if len(filtered) == 0 {
-		return nil, fmt.Errorf("no pages match --pages %q", names)
-	}
-	return filtered, nil
 }
