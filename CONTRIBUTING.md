@@ -202,6 +202,39 @@ The regex validates:
 
 ---
 
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration. All workflows trigger on push and pull request to `master`.
+
+| Workflow | File | What it does |
+|----------|------|-------------|
+| **Lint** | `.github/workflows/lint.yml` | Runs `golangci-lint` to enforce code quality |
+| **Test** | `.github/workflows/test.yml` | Runs `go test ./... -race` with coverage reporting |
+| **Build** | `.github/workflows/build.yml` | Builds binaries for linux/amd64, darwin/amd64, darwin/arm64, windows/amd64 |
+
+### Local Development
+
+Use the Makefile to run the same checks locally before pushing:
+
+```bash
+make lint      # Run golangci-lint
+make test      # Run tests with coverage
+make build     # Build the binary
+make dev       # Start Air for hot-reload
+make all       # lint + test + build
+```
+
+---
+
+## Issue Workflow
+
+- Every issue must use the repository issue templates (Task or Bug Report)
+- Every issue that produces code **must include unit tests**
+- Reference the issue number in all commits (`feat #N: ...`)
+- One issue = one commit = one pull request
+
+---
+
 ## Code of Conduct
 
 - Respect the work of other contributors

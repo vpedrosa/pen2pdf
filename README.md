@@ -21,6 +21,10 @@ It also supports:
 
 ## Architecture
 
+The project follows **hexagonal architecture** (ports & adapters) with **vertical slicing**. Each functional group is a self-contained slice with its own domain, application, and infrastructure layers.
+
+### Pipeline
+
 ```
 .pen file
    │
@@ -55,40 +59,80 @@ It also supports:
 └──────────────────┘
 ```
 
+### Hexagonal Layers
+
+Each vertical slice contains three layers:
+
+- **`domain/`** — Entities, value objects, and port interfaces. Zero external dependencies.
+- **`application/`** — Use cases and services that orchestrate domain logic.
+- **`infrastructure/`** — Adapters: concrete implementations of domain ports (JSON parser, filesystem loader, gopdf renderer).
+
 ### Project Structure
 
 ```
 pen2pdf/
-├── cmd/
-│   └── root.go              # Cobra root command
-│   └── render.go            # `pen2pdf render` subcommand
-│   └── info.go              # `pen2pdf info` subcommand
-│   └── validate.go          # `pen2pdf validate` subcommand
+├── cmd/                                        # Cobra CLI commands (driving adapters)
+│   ├── root.go                                 # Root command, version flag
+│   ├── render.go                               # pen2pdf render
+│   ├── validate.go                             # pen2pdf validate
+│   └── info.go                                 # pen2pdf info
 ├── internal/
-│   ├── parser/
-│   │   ├── parser.go        # JSON deserialization
-│   │   └── types.go         # Node, Frame, Text, Fill, Variable structs
-│   ├── resolver/
-│   │   └── resolver.go      # $variable substitution
-│   ├── assets/
-│   │   └── loader.go        # Image and font loading
-│   ├── layout/
-│   │   ├── engine.go        # Layout algorithm (measure → resolve → position)
-│   │   ├── measure.go       # Text intrinsic sizing
-│   │   └── types.go         # LayoutBox with computed geometry
-│   └── render/
-│       ├── pdf.go           # PDF document assembly
-│       └── draw.go          # Drawing primitives (rect, text, image)
-├── example/
-│   ├── test.pen             # Sample .pen file
-│   ├── images/              # Referenced images
-│   └── export/              # Expected output (PNG reference)
-├── main.go                  # Entry point
+│   ├── shared/                                 # Cross-cutting shared types
+│   │   ├── domain/
+│   │   │   ├── node.go                         # Node interface, Frame, Text structs
+│   │   │   ├── document.go                     # Document top-level container
+│   │   │   ├── fill.go                         # Fill types (solid color, image)
+│   │   │   └── variable.go                     # Variable type system
+│   │   ├── application/
+│   │   └── infrastructure/
+│   ├── parser/                                 # Parse vertical slice
+│   │   ├── domain/
+│   │   │   └── port.go                         # Parser port interface
+│   │   ├── application/
+│   │   │   └── service.go                      # Parse orchestration
+│   │   └── infrastructure/
+│   │       └── json/
+│   │           └── parser.go                   # JSON .pen file adapter
+│   ├── resolver/                               # Resolve vertical slice
+│   │   ├── domain/
+│   │   │   └── port.go                         # Resolver port interface
+│   │   ├── application/
+│   │   │   └── service.go                      # Resolution orchestration
+│   │   └── infrastructure/
+│   │       └── engine/
+│   │           └── resolver.go                 # $variable substitution engine
+│   ├── asset/                                  # Asset loading vertical slice
+│   │   ├── domain/
+│   │   │   └── port.go                         # AssetLoader port, ImageData, FontData
+│   │   ├── application/
+│   │   │   └── service.go                      # Asset orchestration
+│   │   └── infrastructure/
+│   │       └── fs/
+│   │           └── loader.go                   # Filesystem image/font loader
+│   ├── layout/                                 # Layout vertical slice
+│   │   ├── domain/
+│   │   │   ├── port.go                         # LayoutEngine port, TextMeasurer
+│   │   │   └── types.go                        # LayoutBox, Page
+│   │   ├── application/
+│   │   │   └── service.go                      # Layout orchestration
+│   │   └── infrastructure/
+│   │       └── flexbox/
+│   │           ├── engine.go                   # Flexbox layout algorithm
+│   │           └── measure.go                  # Text intrinsic measurement
+│   └── renderer/                               # Render vertical slice
+│       ├── domain/
+│       │   └── port.go                         # Renderer port interface
+│       ├── application/
+│       │   └── service.go                      # Render orchestration
+│       └── infrastructure/
+│           └── pdf/
+│               ├── renderer.go                 # gopdf document/page setup
+│               └── draw.go                     # Drawing primitives
+├── main.go
+├── .air.toml
+├── Makefile
 ├── go.mod
-├── go.sum
-├── LICENSE
-├── README.md
-└── CONTRIBUTING.md
+└── go.sum
 ```
 
 ## Usage
