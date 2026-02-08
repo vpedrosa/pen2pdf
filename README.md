@@ -120,6 +120,8 @@ Displays pages, variables, and fonts used in the document.
 
 ## The `.pen` Format
 
+`.pen` files can be created and edited visually with [Pencil](https://pencil.dev).
+
 A `.pen` file is a JSON document describing a tree of visual nodes:
 
 - **`frame`** — Container with optional fill (solid color or image), corner radius, clipping, and layout properties
