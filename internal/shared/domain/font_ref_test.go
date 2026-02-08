@@ -131,3 +131,36 @@ func TestCollectFontRefsMultiplePages(t *testing.T) {
 		t.Fatalf("expected 2 refs from 2 pages, got %d", len(refs))
 	}
 }
+
+func TestCollectFontFamilies(t *testing.T) {
+	doc := &domain.Document{
+		Children: []domain.Node{
+			&domain.Frame{
+				ID: "page", Name: "page",
+				Children: []domain.Node{
+					&domain.Text{ID: "t1", FontFamily: "Montserrat", FontWeight: "400"},
+					&domain.Text{ID: "t2", FontFamily: "Inter", FontWeight: "400"},
+					&domain.Text{ID: "t3", FontFamily: "Inter", FontWeight: "700"},
+					&domain.Text{ID: "t4", FontFamily: "Montserrat", FontWeight: "600"},
+				},
+			},
+		},
+	}
+
+	families := domain.CollectFontFamilies(doc)
+	if len(families) != 2 {
+		t.Fatalf("expected 2 families, got %d: %v", len(families), families)
+	}
+	// Should be sorted
+	if families[0] != "Inter" || families[1] != "Montserrat" {
+		t.Errorf("expected [Inter, Montserrat], got %v", families)
+	}
+}
+
+func TestCollectFontFamiliesEmpty(t *testing.T) {
+	doc := &domain.Document{}
+	families := domain.CollectFontFamilies(doc)
+	if len(families) != 0 {
+		t.Errorf("expected 0 families, got %d", len(families))
+	}
+}

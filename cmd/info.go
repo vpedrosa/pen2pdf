@@ -6,8 +6,9 @@ import (
 	"sort"
 
 	"github.com/spf13/cobra"
-	"github.com/vpedrosa/pen2pdf/internal/application"
+	parserApp "github.com/vpedrosa/pen2pdf/internal/parser/application"
 	parserInfra "github.com/vpedrosa/pen2pdf/internal/parser/infrastructure"
+	shared "github.com/vpedrosa/pen2pdf/internal/shared/domain"
 )
 
 var infoCmd = &cobra.Command{
@@ -31,40 +32,43 @@ func runInfo(cmd *cobra.Command, args []string) error {
 	}
 	defer inputFile.Close() //nolint:errcheck
 
-	svc := application.NewInfoService(parserInfra.NewJSONParser())
+	parseSvc := parserApp.NewParseService(parserInfra.NewJSONParser())
 
-	info, err := svc.GetInfo(inputFile)
+	doc, err := parseSvc.Parse(inputFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("parse error: %w", err)
 	}
 
 	cmd.Printf("File:    %s\n", inputPath)
-	cmd.Printf("Version: %s\n", info.Version)
+	cmd.Printf("Version: %s\n", doc.Version)
 	cmd.Println()
 
-	cmd.Printf("Pages (%d):\n", len(info.Pages))
-	for _, page := range info.Pages {
-		cmd.Printf("  - %s (%.0fx%.0f)\n", page.Name, page.Width, page.Height)
+	cmd.Printf("Pages (%d):\n", len(doc.Children))
+	for _, child := range doc.Children {
+		if frame, ok := child.(*shared.Frame); ok {
+			cmd.Printf("  - %s (%.0fx%.0f)\n", frame.Name, frame.Width.Value, frame.Height.Value)
+		}
 	}
 	cmd.Println()
 
-	if len(info.Variables) > 0 {
-		cmd.Printf("Variables (%d):\n", len(info.Variables))
-		names := make([]string, 0, len(info.Variables))
-		for name := range info.Variables {
+	if len(doc.Variables) > 0 {
+		cmd.Printf("Variables (%d):\n", len(doc.Variables))
+		names := make([]string, 0, len(doc.Variables))
+		for name := range doc.Variables {
 			names = append(names, name)
 		}
 		sort.Strings(names)
 		for _, name := range names {
-			v := info.Variables[name]
+			v := doc.Variables[name]
 			cmd.Printf("  %-20s %s = %v\n", name, v.Type, v.Value)
 		}
 		cmd.Println()
 	}
 
-	if len(info.Fonts) > 0 {
-		cmd.Printf("Fonts (%d):\n", len(info.Fonts))
-		for _, f := range info.Fonts {
+	fonts := shared.CollectFontFamilies(doc)
+	if len(fonts) > 0 {
+		cmd.Printf("Fonts (%d):\n", len(fonts))
+		for _, f := range fonts {
 			cmd.Printf("  - %s\n", f)
 		}
 	}

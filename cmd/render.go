@@ -8,11 +8,15 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/vpedrosa/pen2pdf/internal/application"
+	assetApp "github.com/vpedrosa/pen2pdf/internal/asset/application"
 	assetInfra "github.com/vpedrosa/pen2pdf/internal/asset/infrastructure"
+	layoutApp "github.com/vpedrosa/pen2pdf/internal/layout/application"
 	layoutInfra "github.com/vpedrosa/pen2pdf/internal/layout/infrastructure"
+	parserApp "github.com/vpedrosa/pen2pdf/internal/parser/application"
 	parserInfra "github.com/vpedrosa/pen2pdf/internal/parser/infrastructure"
+	rendererApp "github.com/vpedrosa/pen2pdf/internal/renderer/application"
 	rendererInfra "github.com/vpedrosa/pen2pdf/internal/renderer/infrastructure"
+	resolverApp "github.com/vpedrosa/pen2pdf/internal/resolver/application"
 	resolverInfra "github.com/vpedrosa/pen2pdf/internal/resolver/infrastructure"
 	shared "github.com/vpedrosa/pen2pdf/internal/shared/domain"
 )
@@ -57,44 +61,66 @@ func runRender(cmd *cobra.Command, args []string) error {
 		fontDirs = append(fontDirs, filepath.Join(home, ".local", "share", "fonts"))
 	}
 
-	parser := parserInfra.NewJSONParser()
-	resolver := resolverInfra.NewVariableResolver()
 	fontLoader := assetInfra.NewFSFontLoader(fontDirs...)
 	imageLoader := assetInfra.NewFSImageLoader(baseDir)
 	measurer := layoutInfra.NewGopdfTextMeasurer(fontLoader)
-	layoutEngine := layoutInfra.NewFlexboxEngine()
-	renderer := rendererInfra.NewPDFRenderer(imageLoader, fontLoader)
+	pdfRenderer := rendererInfra.NewPDFRenderer(imageLoader, fontLoader)
 
-	svc := application.NewRenderService(parser, resolver, fontLoader, imageLoader, layoutEngine, measurer, renderer)
+	// Build application services (inject ports via DI)
+	parseSvc := parserApp.NewParseService(parserInfra.NewJSONParser())
+	resolveSvc := resolverApp.NewResolveService(resolverInfra.NewVariableResolver())
+	fontSvc := assetApp.NewFontService(fontLoader)
+	layoutSvc := layoutApp.NewLayoutService(layoutInfra.NewFlexboxEngine(), measurer)
+	renderSvc := rendererApp.NewRenderService(pdfRenderer)
 
-	// Check for missing fonts (interactive CLI concern)
+	// 1. Parse
 	inputFile, err := os.Open(inputPath)
 	if err != nil {
 		return fmt.Errorf("open input: %w", err)
 	}
-
-	missing, doc, err := svc.DetectMissingFonts(inputFile)
+	doc, err := parseSvc.Parse(inputFile)
 	inputFile.Close() //nolint:errcheck
 	if err != nil {
-		return err
+		return fmt.Errorf("parse: %w", err)
 	}
 
+	// 2. Resolve variables
+	if err := resolveSvc.Resolve(doc); err != nil {
+		return fmt.Errorf("resolve: %w", err)
+	}
+
+	// 3. Detect and download missing fonts (interactive CLI concern)
+	missing := fontSvc.DetectMissingFonts(doc)
 	if len(missing) > 0 {
 		if err := promptAndDownloadFonts(cmd, missing, fontsDir); err != nil {
 			return err
 		}
 	}
 
-	// Render using the already-parsed document
+	// 4. Filter pages
+	if pagesFlag != "" {
+		doc.Children, err = shared.FilterPagesByName(doc.Children, pagesFlag)
+		if err != nil {
+			return err
+		}
+	}
+
+	// 5. Layout
+	pages, err := layoutSvc.Layout(doc)
+	if err != nil {
+		return fmt.Errorf("layout: %w", err)
+	}
+
+	// 6. Render
 	outputFile, err := os.Create(output)
 	if err != nil {
 		return fmt.Errorf("create output: %w", err)
 	}
 	defer outputFile.Close() //nolint:errcheck
 
-	result, err := svc.RenderDocument(doc, outputFile, pagesFlag)
+	result, err := renderSvc.Render(pages, outputFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("render: %w", err)
 	}
 
 	cmd.Printf("PDF written to %s (%d pages)\n", output, result.PageCount)
