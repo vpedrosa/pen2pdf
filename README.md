@@ -11,7 +11,7 @@
 CLI tool to generate PDF documents from `.pen` files — a JSON-based design format.
 
 
-** ARCHIVING DUE TO PEN.DEV IMPLEMENTING THIS FEATURE NATIVELY**
+**ARCHIVING DUE TO PEN.DEV IMPLEMENTING THIS FEATURE NATIVELY**
 
 
 
