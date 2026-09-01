@@ -10,6 +10,11 @@
 
 CLI tool to generate PDF documents from `.pen` files — a JSON-based design format.
 
+
+** ARCHIVING DUE TO PEN.DEV IMPLEMENTING THIS FEATURE NATIVELY**
+
+
+
 ## Features
 
 - **Full layout engine** — Flexbox-like layout with `vertical`/`horizontal` stacking, `gap`, `padding`, `justifyContent`, `alignItems`, and `fill_container` responsive sizing
